@@ -81,7 +81,7 @@ app.post('/google', async (req, res) => {
             });
         });
 
-    Usuario.findOne({email: googleUser.email}, (err, usuarioDB) =>{
+    Usuario.findOne({ email: googleUser.email }, (err, usuarioDB) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
@@ -89,15 +89,15 @@ app.post('/google', async (req, res) => {
             });
         }
 
-        if(usuarioDB){
-            if(usuarioDB.google === false){
+        if (usuarioDB) {
+            if (usuarioDB.google === false) {
                 return res.status(400).json({
                     ok: false,
                     err: {
                         message: 'Debe usar su autenticación normal'
                     }
                 });
-            }else{
+            } else {
                 let token = jwt.sign({
                     usuario: usuarioDB
                 }, process.env.SEED, { expiresIn: process.env.CADUCIDAD_TOKEN });
@@ -108,7 +108,7 @@ app.post('/google', async (req, res) => {
                     token
                 });
             }
-        }else{
+        } else {
 
             // Si el usuario no existe en la DB, se crea un nuevo usuario.
             let usuario = new Usuario();
@@ -136,10 +136,7 @@ app.post('/google', async (req, res) => {
 
             });
 
-        }
-
-
-
+        };
     });
 
 });
