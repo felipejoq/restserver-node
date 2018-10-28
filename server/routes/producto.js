@@ -110,7 +110,7 @@ app.get('/producto/buscar/:termino', verificaToken, (req, res) => {
 
     let regex = new RegExp(termino, 'i');
 
-    Producto.find({nombre: regex})
+    Producto.find({ nombre: regex })
         .populate('usuario', 'nombre email')
         .populate('categoria', 'nombre descripcion')
         .exec((err, productos) => {
@@ -141,18 +141,16 @@ app.post('/producto', verificaToken, (req, res) => {
     //Obtiene el body request que viene desde el cliente y lo transforma en un objeto.
     let body = req.body;
 
-    // Verifica que existe la categoria
-    Categoria.findById(body.categoria, (err, categoriaDB) => {
+    let producto = new Producto({
+        nombre: body.nombre,
+        precioUni: body.precioUni,
+        descripcion: body.descripcion,
+        disponible: body.disponible,
+        categoria: body.categoria,
+        usuario: req.usuario._id
+    });
 
-        if (typeof categoriaDB === 'undefined') {
-            return res.status(400).json({
-                ok: false,
-                err: {
-                    message: 'La categoría no existe'
-                }
-            });
-        };
-
+    producto.save((err, productoDB) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
@@ -160,36 +158,17 @@ app.post('/producto', verificaToken, (req, res) => {
             });
         };
 
-        let producto = new Producto({
-            nombre: body.nombre,
-            precioUni: body.precioUni,
-            descripcion: body.descripcion,
-            disponible: body.disponible,
-            categoria: categoriaDB._id,
-            usuario: req.usuario._id
-        });
-
-        producto.save((err, productoDB) => {
-            if (err) {
-                return res.status(500).json({
-                    ok: false,
-                    err
-                });
-            };
-
-            if (!productoDB) {
-                return res.status(400).json({
-                    ok: false,
-                    err
-                });
-            };
-
-            res.json({
-                ok: true,
-                producto: productoDB
+        if (!productoDB) {
+            return res.status(400).json({
+                ok: false,
+                err
             });
-        });
+        };
 
+        res.json({
+            ok: true,
+            producto: productoDB
+        });
     });
 });
 
